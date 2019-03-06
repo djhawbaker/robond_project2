@@ -25,7 +25,7 @@ void process_image_callback(const sensor_msgs::Image img)
 {
 
     int white_pixel = 255;
-    int i, j;
+    int i, j, row;
     // Divide image into 3 equal width sections. These are the left and right dividing lines
     int left = img.width / 3;
     int right = left * 2;
@@ -43,23 +43,29 @@ void process_image_callback(const sensor_msgs::Image img)
     // Request a stop when there's no white ball seen by the camera
     for ( i = 0; i < img.height; ++i)
     {
+	row = i * img.step;
+
         for ( j = 0; j < img.width; ++j)
         {
-            if ( white_pixel == img.data[i*j] )
+            if ( white_pixel == img.data[row + j] )
             {
+		ROS_INFO("Found ball row: %d, column: %d", row/img.width, j);
                 ball_found = true;
-                if ( img.data[i*j] < left )
+                if ( j < left )
                 {
+		    ROS_INFO("Driving left");
                     // Ball is to the left, turn left
                     drive_robot( forward_speed, turn_left );
                 }
-                else if (img.data[i*j] > right )
+                else if ( j > right )
                 {
+		    ROS_INFO("Driving right");
                     // Ball is to the right, turn right 
                     drive_robot( forward_speed, turn_right );
                 }
                 else
                 {
+		    ROS_INFO("Driving straight ahead");
                     // Ball is straight ahead, chase it!
                     drive_robot( forward_speed, stop );
                 }
