@@ -41,6 +41,44 @@ void process_image_callback(const sensor_msgs::Image img)
     // Then, identify if this pixel falls in the left, mid, or right side of the image
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
+    for ( i = 0; i < img.height * img.step; ++i )
+    {
+       if ( white_pixel == img.data[i] ) 
+       {
+            ROS_INFO("Found ball row: %d, column: %d", row/img.width, j);
+            ball_found = true;
+            if ( i%img.step < left )
+            {
+                ROS_INFO("Driving left");
+                // Ball is to the left, turn left
+                drive_robot( forward_speed, turn_left );
+            }
+            else if ( i%img.step > right )
+            {
+                ROS_INFO("Driving right");
+                // Ball is to the right, turn right 
+                drive_robot( forward_speed, turn_right );
+            }
+            else
+            {
+                ROS_INFO("Driving straight ahead");
+                // Ball is straight ahead, chase it!
+                drive_robot( forward_speed, stop );
+            }
+            break;
+       }
+    }
+
+    if ( ball_found == false )
+    {
+        // Stop the bot
+        drive_robot( stop, stop );
+    }
+
+
+
+/*
+
     for ( i = 0; i < img.height; ++i)
     {
 	row = i * img.step;
@@ -49,23 +87,23 @@ void process_image_callback(const sensor_msgs::Image img)
         {
             if ( white_pixel == img.data[row + j] )
             {
-		ROS_INFO("Found ball row: %d, column: %d", row/img.width, j);
+                ROS_INFO("Found ball row: %d, column: %d", row/img.width, j);
                 ball_found = true;
                 if ( j < left )
                 {
-		    ROS_INFO("Driving left");
+                    ROS_INFO("Driving left");
                     // Ball is to the left, turn left
                     drive_robot( forward_speed, turn_left );
                 }
                 else if ( j > right )
                 {
-		    ROS_INFO("Driving right");
+                    ROS_INFO("Driving right");
                     // Ball is to the right, turn right 
                     drive_robot( forward_speed, turn_right );
                 }
                 else
                 {
-		    ROS_INFO("Driving straight ahead");
+                    ROS_INFO("Driving straight ahead");
                     // Ball is straight ahead, chase it!
                     drive_robot( forward_speed, stop );
                 }
@@ -83,6 +121,7 @@ void process_image_callback(const sensor_msgs::Image img)
         // Stop the bot
         drive_robot( stop, stop );
     }
+    */
 }
 
 int main(int argc, char** argv)
