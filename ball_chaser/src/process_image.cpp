@@ -33,8 +33,10 @@ void process_image_callback(const sensor_msgs::Image img)
     float forward_speed = 5;
     float stop = 0.0;
     // Turn 5 degrees / second in radians
-    float turn_left = -0.0872665;
-    float turn_right = 0.0872665;
+    // TODO verify these turn the right direction. Convention is opposite
+    // TODO bot won't turn right. Check model. try manually sending turn commands
+    float turn_left = -0.09;
+    float turn_right = 0.09;
 
 
     // Loop through each pixel in the image and check if there's a bright white one
