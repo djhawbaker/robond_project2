@@ -9,6 +9,7 @@ ros::ServiceClient client;
 void drive_robot(float lin_x, float ang_z)
 {
     // Request a service and pass the velocities to it to drive the robot
+    // TODO check model axis. Make sure we're rotating on the right axis... 
     ball_chaser::DriveToTarget srv;
 
     srv.request.linear_x = lin_x;
@@ -25,18 +26,17 @@ void process_image_callback(const sensor_msgs::Image img)
 {
 
     int white_pixel = 255;
-    int i, j, row;
+    int i, row;
     // Divide image into 3 equal width sections. These are the left and right dividing lines
-    int left = img.width / 3;
+    int left = img.step / 3;
     int right = left * 2;
     bool ball_found = false;
     float forward_speed = 5;
     float stop = 0.0;
-    // Turn 5 degrees / second in radians
-    // TODO verify these turn the right direction. Convention is opposite
-    // TODO bot won't turn right. Check model. try manually sending turn commands
-    float turn_left = -0.09;
-    float turn_right = 0.09;
+    // Turn 5 degrees / second in radians = 0.09
+    // Convention is counter clockwise is positive 
+    float turn_left = 0.09;
+    float turn_right = -0.09;
 
 
     // Loop through each pixel in the image and check if there's a bright white one
@@ -47,8 +47,9 @@ void process_image_callback(const sensor_msgs::Image img)
     {
        if ( white_pixel == img.data[i] ) 
        {
-            ROS_INFO("Found ball row: %d, column: %d", row/img.width, j);
+            //ROS_INFO("Found ball row: %d, column: %d", row/img.width, i%img.step);
             ball_found = true;
+
             if ( i%img.step < left )
             {
                 ROS_INFO("Driving left");
